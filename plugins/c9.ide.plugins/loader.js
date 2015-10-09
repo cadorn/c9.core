@@ -123,9 +123,10 @@ define(function(require, exports, module) {
          */
         function listAllPackages(callback) {
             async.parallel({
-                "plugins" : async.apply(listPackages, "~/.c9/plugins"),
-                "managed" : async.apply(listPackages, "~/.c9/managed/plugins"),
-                "dev"     : async.apply(listPackages, "~/.c9/dev/plugins"),
+                "plugins"  : async.apply(listPackages, "~/.c9/plugins"),
+                "managed"  : async.apply(listPackages, "~/.c9/managed/plugins"),
+                "dev"      : async.apply(listPackages, "~/.c9/dev/plugins"),
+                "workspace": async.apply(listPackages, "/.c9/plugins"),
             }, function(err, packages) {
                 if (err && err.code === "EDISCONNECT") {
                     c9.once("connect", function() {
@@ -152,6 +153,12 @@ define(function(require, exports, module) {
 
                 // higher: ~/.c9/dev/plugins
                 packages.dev.forEach(function(config) {
+                    if (!config) return;
+                    resolved[config.name] = config;
+                });
+
+                // highest: /.c9/plugins
+                packages.workspace.forEach(function(config) {
                     if (!config) return;
                     resolved[config.name] = config;
                 });
